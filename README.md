@@ -32,3 +32,23 @@ Baseline tips:
 - Use CatBoost/LightGBM with `station_token` as categorical
 - Add calibration (LogLoss-heavy metric)
 
+### Why this is interesting (and non-trivial)
+- **Conditional label**: it’s not “is flow low?”—it’s “does it *become* low soon, given it isn’t already low,” which avoids trivial persistence baselines.
+- **Station-relative thresholds**: “low flow” differs wildly across gauges; the builder uses train-era station history.
+- **Messy reality**: gaps exist; missingness is part of the signal and a failure mode.
+- **Slice pressure**: `slice_low_baseline` focuses on already-low baseline regimes where collapse risk is hardest to separate from noise.
+
+### Target intuition
+The label answers:
+> “Will the river drop into an unusually low-flow band within the next 14 days, even though it’s not already there?”
+
+### Common pitfalls
+- Treating `station_token` as numeric (it’s categorical).
+- Random CV (leaks time and station patterns).
+- Ignoring calibration (LogLoss-heavy scoring).
+
+### Source
+USGS NWIS Water Services:
+- `https://waterservices.usgs.gov/`
+- Daily Values endpoint: `https://waterservices.usgs.gov/nwis/dv/`
+
